@@ -1,0 +1,29 @@
+ion-badge {
+    --padding-start: 6px;
+    --padding-end: 6px;
+    --padding-top: 6px;
+    --padding-bottom: 6px;
+    font-size: 12px;
+}
+
+ion-title {
+    font-weight: bold;
+}
+
+ion-col.progress-bar {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+ion-progress-bar {
+    height: 8px;
+}
+
+p.problem-id {
+    font-size: 14px
+}
+
+p.problem-title {
+    font-weight: bold;
+    font-size: 16px
+}
