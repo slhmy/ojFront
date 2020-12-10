@@ -26,20 +26,10 @@ import { RefresherEventDetail } from '@ionic/core';
 import { chevronDownCircleOutline } from 'ionicons/icons';
 
 export const ProblemList: React.FC = () => {
+  var format = require('string-format')
   let region = useLocation().pathname.split('/')[2];
   const [showLoading, setShowLoading] = useState(true);
-  const [problemList, setProlemList] = useState(
-    {"problemCatalog": {
-      elements: [[{
-        "id": null,
-        "title": null,
-        "acceptRate": 0.0,
-        "difficulty": null,
-        "isPassed": null,
-        "isTried": null,
-      }]]
-    }}
-  );
+  const [problemList, setProblemList] = useState<any>();
 
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
     setTimeout(() => {
@@ -47,11 +37,11 @@ export const ProblemList: React.FC = () => {
       .then(response => response.json())
       .then(result => {
         setTimeout(() => {
-          setProlemList(result.data);
-          setShowLoading(false);
+          setProblemList(result.data);
         }, 0);
       })
       .catch(err => console.log(err));
+      setShowLoading(false);
       event.detail.complete();
     }, 500);
   }  
@@ -61,7 +51,7 @@ export const ProblemList: React.FC = () => {
       .then(response => response.json())
       .then(result => {
         setTimeout(() => {
-          setProlemList(result.data);
+          setProblemList(result.data);
           setShowLoading(false);
         }, 500);
       })
@@ -97,37 +87,39 @@ export const ProblemList: React.FC = () => {
         </IonRefresher>
 
         <IonCard>
-          {problemList.problemCatalog.elements[0].map((problem, index) => {
-            let solutionState: any = undefined;
-            let difficultyColor: any = undefined;
-            if (problem.isPassed === true) { solutionState = "success"; }
-            else if (problem.isTried === true) { solutionState = "warning"; }
-            if (problem.difficulty === 'Navie') { difficultyColor = "medium"}
-            else if (problem.difficulty === 'Easy') { difficultyColor = "primary"}
-            else if (problem.difficulty === 'Middle') { difficultyColor = "tertiary"}
-            else if (problem.difficulty === 'Hard') { difficultyColor = "danger"}
-            if (problem.id != null) {
-              return (
-                <IonItem href="#" color={solutionState} key={index}>
-                  <IonCol size="2"><p className="problem-id">{problem.id}</p></IonCol>
-                  <IonCol size="4"><p className="problem-title">{problem.title}</p></IonCol>
-                  <IonGrid>
-                    <IonRow>
-                      <IonCol size="7" className="progress-bar">
-                        <IonLabel>Pass Rate:</IonLabel>
-                        <IonProgressBar value={problem.acceptRate}></IonProgressBar>
-                      </IonCol>
-                      <IonCol size="3" className="ion-align-self-end">
-                        <IonBadge color={difficultyColor}>{problem.difficulty}</IonBadge>
-                      </IonCol>
-                    </IonRow>
-                  </IonGrid>
-                  
-                </IonItem>
-              );
+          {problemList === undefined ? undefined : 
+            problemList.problemCatalog.elements[0].map((problem, index) => {
+              let solutionState: any = undefined;
+              let difficultyColor: any = undefined;
+              if (problem.isPassed === true) { solutionState = "success"; }
+              else if (problem.isTried === true) { solutionState = "warning"; }
+              if (problem.difficulty === 'Navie') { difficultyColor = "medium"}
+              else if (problem.difficulty === 'Easy') { difficultyColor = "primary"}
+              else if (problem.difficulty === 'Middle') { difficultyColor = "tertiary"}
+              else if (problem.difficulty === 'Hard') { difficultyColor = "danger"}
+              if (problem.id != null) {
+                return (
+                  <IonItem href={format('/ProblemList/{}/{}', region, problem.id)} color={solutionState} key={index}>
+                    <IonCol size="2"><p className="problem-id">{problem.id}</p></IonCol>
+                    <IonCol size="4"><p className="problem-title">{problem.title}</p></IonCol>
+                    <IonGrid>
+                      <IonRow>
+                        <IonCol size="7" className="progress-bar">
+                          <IonLabel>Pass Rate:</IonLabel>
+                          <IonProgressBar value={problem.acceptRate}></IonProgressBar>
+                        </IonCol>
+                        <IonCol size="3" className="ion-align-self-end">
+                          <IonBadge color={difficultyColor}>{problem.difficulty}</IonBadge>
+                        </IonCol>
+                      </IonRow>
+                    </IonGrid>
+                    
+                  </IonItem>
+                );
+              }
+              return null;
             }
-            return null;
-          })}
+          )}
         </IonCard>
       </IonContent>
     </IonPage>

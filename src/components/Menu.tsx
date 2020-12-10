@@ -43,8 +43,6 @@ const appPages: AppPage[] = [
   },
 ];
 
-const labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
-
 const Menu: React.FC = () => {
   const [tempMobile, setTempMobile] = useState("");
   const [showNormalLoginAlert, setShowNormalLoginAlert] = useState(false);
