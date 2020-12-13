@@ -18,7 +18,10 @@ import {
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { 
-  planetOutline, planet, close,
+  planetOutline, planet,
+  linkOutline, link,
+  medalOutline, medal,
+  close,
 } from 'ionicons/icons';
 import './Menu.css';
 import { me } from '../requests/Me';
@@ -40,6 +43,18 @@ const appPages: AppPage[] = [
     url: '/ProblemList/global',
     iosIcon: planetOutline,
     mdIcon: planet
+  },
+  {
+    title: 'Contests',
+    url: '/ContestList',
+    iosIcon: medalOutline,
+    mdIcon: medal,
+  },
+  {
+    title: 'JudgeServers',
+    url: '/JudgeServerList',
+    iosIcon: linkOutline,
+    mdIcon: link
   },
 ];
 
@@ -70,6 +85,7 @@ const Menu: React.FC = () => {
     me()
       .then(response => {
         if (response.status === 200) { response.json().then(result => { setSelfInfo(result); }) }
+        else { setSelfInfo(undefined); }
       })
       .catch(err => {
         console.log(err);
@@ -81,11 +97,9 @@ const Menu: React.FC = () => {
       setShowActionSheet(true);
     } else {
       logout()
-        .then(response => {
-          if (response.status === 200) {
-            setShowLogoutSucessToast(false);
-            setShowLogoutSucessToast(true);
-          }
+        .then(_response => {
+          setShowLogoutSucessToast(false);
+          setShowLogoutSucessToast(true);
         }).catch(err => console.log(err));
     }
   }

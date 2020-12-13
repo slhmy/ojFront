@@ -1,8 +1,15 @@
 import Menu from './components/Menu';
 import Page from './pages/Page';
 import ProblemList from './pages/ProblemList';
+import JudgeServerList from './pages/JudgeServerList';
+import StatusList from './pages/StatusList';
+import RankList from './pages/RankList';
 import Problem from './pages/Problem';
+import Status from './pages/Status';
+import Register from './pages/Register';
+import Unregister from './pages/Unregister';
 import React from 'react';
+import ContestList from './pages/ContestList';
 import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router-dom';
@@ -36,7 +43,14 @@ const App: React.FC = () => {
           <IonRouterOutlet id="main">
             <Route path="/page/:name" component={Page} exact />
             <Route path="/ProblemList/:region" component={ProblemList} exact />
-            <Route path="/ProblemList/:region/:id" component={Problem} exact />
+            <Route path="/Problem/:region/:id" component={Problem} exact />
+            <Route path="/JudgeServerList" component={JudgeServerList} exact />
+            <Route path="/StatusList/:region/:problemId/:userId" component={StatusList} exact />
+            <Route path="/RankList/:region" component={RankList} exact />
+            <Route path="/Status/:id" component={Status} exact />
+            <Route path="/ContestList" component={ContestList} exact />
+            <Route path="/Register/:region/:needPass" component={Register} exact />
+            <Route path="/Unregister/:region" component={Unregister} exact />
             <Redirect from="/" to="/ProblemList/global" exact />
           </IonRouterOutlet>
         </IonSplitPane>

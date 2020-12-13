@@ -35,6 +35,7 @@ import { RefresherEventDetail } from '@ionic/core';
 import { chevronDownCircleOutline, pulseOutline } from 'ionicons/icons';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import { submit } from '../requests/Submit';
+import { me } from '../requests/Me';
 require('codemirror/lib/codemirror.css');
 require('codemirror/theme/material.css');
 require('codemirror/mode/clike/clike.js');
@@ -51,10 +52,21 @@ export const Problem: React.FC = () => {
   const [highlightMode, setHighlightMode] = useState<string>('clike');
   const [language, setLanguage] = useState<string>('cpp');
   const [srcCode, setSrcCode] = useState<string>("");
-  const [statusId, setStatusId] = useState<string>();
   const [showSubmitSuccessToast, setShowSubmitSuccessToast] = useState<boolean>(false);
   const [showSubmitFailToast, setShowSubmitFailToast] = useState<boolean>(false);
   const [showEmptyCodeToast, setShowEmptyCodeToast] = useState<boolean>(false);
+  const [selfInfo, setSelfInfo] = useState<any>();
+
+  useEffect(() => {
+    me()
+      .then(response => {
+        if (response.status === 200) { response.json().then(result => { setSelfInfo(result); }) }
+        else { setSelfInfo(undefined); }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }, [problemInfo]);
 
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
     setTimeout(() => {
@@ -68,7 +80,7 @@ export const Problem: React.FC = () => {
       .catch(err => console.log(err));
       setShowLoading(false);
       event.detail.complete();
-    }, 500);
+    }, 0);
   }  
   
   useEffect(() => {
@@ -79,7 +91,7 @@ export const Problem: React.FC = () => {
           console.log(result);
           setProblemInfo(result.data);
           setShowLoading(false);
-        }, 500);
+        }, 0);
       })
       .catch(err => console.log(err));
   }, []);
@@ -100,7 +112,7 @@ export const Problem: React.FC = () => {
           isOpen={showLoading}
           onDidDismiss={() => setShowLoading(false)}
           message={'Please wait...'}
-          duration={5000}
+          duration={0}
         />
 
         <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
@@ -112,17 +124,32 @@ export const Problem: React.FC = () => {
           </IonRefresherContent>
         </IonRefresher>
 
-        <IonFab vertical="top" horizontal="end" slot="fixed" edge>
-          <IonFabButton>
+        {selfInfo === undefined ? undefined : <IonFab vertical="top" horizontal="end" slot="fixed" edge>
+          <IonFabButton onClick={() => {
+            me()
+            .then(response => {
+              if (response.status === 200) { 
+                response.json().then(result => { 
+                  setSelfInfo(result);
+
+                  window.location.href = format('/StatusList/{}/{}/{}', region, id, result.id);
+                })
+              }
+              else { setSelfInfo(undefined); }
+            })
+            .catch(err => {
+              console.log(err);
+            });
+          }}>
             <IonIcon icon={pulseOutline} />
           </IonFabButton>
-        </IonFab>
+        </IonFab>}
 
         {problemInfo === undefined ? undefined : 
           [problemInfo.problem].map((problem, index) => {
-            let description: string = problem.problemContext.description;
-            let inputExplain: string = problem.problemContext.inputExplain;
-            let outputExplain: string = problem.problemContext.outputExplain;
+            let description: string = problem.problemContext.description === null ? '' : problem.problemContext.description;
+            let inputExplain: string = problem.problemContext.inputExplain === null ? '' : problem.problemContext.inputExplain;
+            let outputExplain: string = problem.problemContext.outputExplain === null ? '' : problem.problemContext.outputExplain;
             return (
               <div key={index}><IonCard>
                 <IonListHeader>Description:</IonListHeader>
@@ -152,10 +179,10 @@ export const Problem: React.FC = () => {
                           </IonCol>
                           
                           <IonCol size="12">
-                            <IonItem  lines="none" color="medium">
+                            <IonItem lines="none" color="medium">
                               <IonCol size="8"><IonText>{format("Output #{}", index)}</IonText></IonCol>
                             </IonItem>
-                            <IonItem  lines="none" color="light">
+                            <IonItem lines="none" color="light">
                               <IonTextarea value={example.outputExample} readonly></IonTextarea>
                             </IonItem>
                           </IonCol>
@@ -176,8 +203,8 @@ export const Problem: React.FC = () => {
                   <IonSelectOption value="c">C</IonSelectOption>
                   <IonSelectOption value="cpp">C++</IonSelectOption>
                   <IonSelectOption value="java">Java</IonSelectOption>
-                  <IonSelectOption value="python2">Python2</IonSelectOption>
-                  <IonSelectOption value="python3">Python3</IonSelectOption>
+                  <IonSelectOption value="py2">Python2</IonSelectOption>
+                  <IonSelectOption value="py3">Python3</IonSelectOption>
                 </IonSelect></IonItem>
                 <CodeMirror
                   options={{

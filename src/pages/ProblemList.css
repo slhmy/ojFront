@@ -15,8 +15,14 @@ ion-col.progress-bar {
     font-size: 12px;
 }
 
-ion-progress-bar {
+ion-progress-bar.accept-rate {
+    border-radius: 3px;
     height: 8px;
+}
+
+ion-progress-bar.contest_progress {
+    border-radius: 6px;
+    height: 16px;
 }
 
 p.problem-id {
