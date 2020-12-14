@@ -51,6 +51,7 @@ export const UserList: React.FC = () => {
       get_user_list(region, searchUsername)
       .then(response => response.json())
       .then(result => {
+        setUserList(undefined)
         setUserList(result.data);
       })
       .catch(err => console.log(err));

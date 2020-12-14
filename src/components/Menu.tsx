@@ -107,6 +107,7 @@ const Menu: React.FC = () => {
         .then(_response => {
           setShowLogoutSucessToast(false);
           setShowLogoutSucessToast(true);
+          window.location.href = '/';
         }).catch(err => console.log(err));
     }
   }

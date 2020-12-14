@@ -39,6 +39,7 @@ export const ContestList: React.FC = () => {
       .then(response => response.json())
       .then(result => {
         setTimeout(() => {
+          setContestList(undefined);
           setContestList(result.data);
         }, 0);
       })

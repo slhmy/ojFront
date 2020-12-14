@@ -120,9 +120,9 @@ const UserColume: React.FC<ContainerProps> = ({ colume }) => {
                                 setTmpRole('student');
                             }
                             }, {
-                            text: 'net-friend',
+                            text: 'net_friend',
                             handler: () => {
-                                setTmpRole('net-friend');
+                                setTmpRole('net_friend');
                             }
                             }, {
                             text: 'Cancel',

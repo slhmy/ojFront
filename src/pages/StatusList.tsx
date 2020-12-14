@@ -40,6 +40,7 @@ export const StatusList: React.FC = () => {
       .then(response => response.json())
       .then(result => {
         setTimeout(() => {
+          setStatusList(undefined);
           setStatusList(result.data);
         }, 0);
       })

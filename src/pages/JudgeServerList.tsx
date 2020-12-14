@@ -37,6 +37,7 @@ export const JudgeServerList: React.FC = () => {
       .then(response => response.json())
       .then(result => {
         setTimeout(() => {
+            setJudgeServerList(undefined);
             setJudgeServerList(result.data);
         }, 0);
       })

@@ -40,6 +40,7 @@ export const RankList: React.FC = () => {
       get_rank_list(region)
       .then(response => response.json())
       .then(result => {
+        setRankList(undefined);
         setRankList(result.data);
       })
       .catch(err => console.log(err));

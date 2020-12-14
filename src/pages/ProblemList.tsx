@@ -47,6 +47,7 @@ export const ProblemList: React.FC = () => {
       .then(response => response.json())
       .then(result => {
         setTimeout(() => {
+          setProblemList(undefined);
           setProblemList(result.data);
         }, 0);
       })

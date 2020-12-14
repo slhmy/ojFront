@@ -74,6 +74,7 @@ export const Problem: React.FC = () => {
       .then(response => response.json())
       .then(result => {
         setTimeout(() => {
+          setProblemInfo(undefined);
           setProblemInfo(result.data);
         }, 0);
       })
