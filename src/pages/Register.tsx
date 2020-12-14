@@ -70,7 +70,7 @@ export const Register: React.FC = () => {
             </IonItem>
             {needPass === "false" ? undefined : 
                 <IonItem>
-                    <IonInput value={password} placeholder="Enter Password" onIonChange={e => setPassword(e.detail.value!)}></IonInput>
+                    <IonInput value={password} placeholder="Enter Password" onIonChange={e => setPassword(e.detail.value!)} type='password'></IonInput>
                 </IonItem>
             }
             <IonButton expand='block' color='primary' onClick={() => {

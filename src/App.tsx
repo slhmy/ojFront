@@ -10,6 +10,7 @@ import Register from './pages/Register';
 import Unregister from './pages/Unregister';
 import React from 'react';
 import ContestList from './pages/ContestList';
+import UserList from './pages/UserList';
 import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router-dom';
@@ -51,6 +52,7 @@ const App: React.FC = () => {
             <Route path="/ContestList" component={ContestList} exact />
             <Route path="/Register/:region/:needPass" component={Register} exact />
             <Route path="/Unregister/:region" component={Unregister} exact />
+            <Route path="/UserList" component={UserList} exact />
             <Redirect from="/" to="/ProblemList/global" exact />
           </IonRouterOutlet>
         </IonSplitPane>

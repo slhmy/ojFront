@@ -21,6 +21,7 @@ import {
   planetOutline, planet,
   linkOutline, link,
   medalOutline, medal,
+  peopleOutline, people,
   close,
 } from 'ionicons/icons';
 import './Menu.css';
@@ -55,6 +56,12 @@ const appPages: AppPage[] = [
     url: '/JudgeServerList',
     iosIcon: linkOutline,
     mdIcon: link
+  },
+  {
+    title: 'UserList',
+    url: '/UserList',
+    iosIcon: peopleOutline,
+    mdIcon: people,
   },
 ];
 
@@ -118,7 +125,8 @@ const Menu: React.FC = () => {
           </IonRow>
           <IonNote>{selfInfo === undefined ? 'Please login first' : 'Welcome'}</IonNote>
           {appPages.map((appPage, index) => {
-            return (
+            if (appPage.title === 'UserList' && (selfInfo === undefined || selfInfo.role !== 'admin')) { return(null)}
+            else return (
               <IonMenuToggle key={index} autoHide={false}>
                 <IonItem className={location.pathname === appPage.url ? 'selected' : ''} routerLink={appPage.url} routerDirection="none" lines="none" detail={false}>
                   <IonIcon slot="start" ios={appPage.iosIcon} md={appPage.mdIcon} />
