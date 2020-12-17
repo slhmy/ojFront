@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { 
+import {
   IonContent,
   IonHeader,
   IonPage,
@@ -22,13 +22,20 @@ import {
   IonDatetime,
   IonFabButton,
   IonFab,
+  IonFabList,
   IonIcon,
+  IonSearchbar,
+  IonPicker,
+  IonCheckbox,
+  IonAlert,
+  IonActionSheet,
 } from '@ionic/react';
 import './ProblemList.css';
 import { get_problem_list } from '../requests/GetProblemList';
 import { get_contest } from '../requests/GetContest';
 import { RefresherEventDetail } from '@ionic/core';
-import { chevronDownCircleOutline, trophyOutline } from 'ionicons/icons';
+import { chevronDownCircleOutline, trophyOutline, chevronBackOutline, pawOutline, funnelOutline } from 'ionicons/icons';
+import CountDown from '../components/CountDown'
 
 export const ProblemList: React.FC = () => {
   var format = require('string-format')
@@ -36,63 +43,62 @@ export const ProblemList: React.FC = () => {
   const [showLoading, setShowLoading] = useState(true);
   const [problemList, setProblemList] = useState<any>();
   const [contest, setContest] = useState<any>();
-  const [curTime, setCurTime] = useState(new Date());
+  const [searchProblemTitle, setSearchProblemTitle] = useState<any>();
+  const [selectDifficulty, setSelectDifficulty] = useState<any>();
+  const [showPicker, setShowPicker] = useState<boolean>(false);
+  const [selectTags, setSelectTags] = useState<any[]>([]);
+  const [checked, setChecked] = useState<boolean[]>([false, false, false, false, false, false, false]);
+  const Tags = ["入门", "I/O", "test", "Navie", "asjdiw", "asdc", "入门"]
 
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
     setTimeout(() => {
       setProblemList(undefined);
       setContest(undefined);
 
-      get_problem_list(region)
-      .then(response => response.json())
-      .then(result => {
-        setTimeout(() => {
-          setProblemList(undefined);
-          setProblemList(result.data);
-        }, 0);
-      })
-      .catch(err => console.log(err));
+      get_problem_list(region, searchProblemTitle, selectDifficulty)
+        .then(response => response.json())
+        .then(result => {
+          setTimeout(() => {
+            setProblemList(undefined);
+            setProblemList(result.data);
+          }, 0);
+        })
+        .catch(err => console.log(err));
 
       get_contest(region)
-      .then(response => response.json())
-      .then(result => {
-        setContest(result.data.contest);
-      })
-      .catch(err => console.log(err))
+        .then(response => response.json())
+        .then(result => {
+          setContest(result.data.contest);
+        })
+        .catch(err => console.log(err))
 
       setShowLoading(false);
       event.detail.complete();
     }, 0);
-  }  
-  
+  }
+
   useEffect(() => {
     setContest(undefined);
     get_contest(region)
       .then(response => response.json())
       .then(result => {
-        if (result.data != null) { setContest(result.data.contest) };
+        if (result.data != null) { setContest(result.data.contest) }
       })
       .catch(err => console.log(err))
   }, [region]);
 
   useEffect(() => {
     setProblemList(undefined);
-    get_problem_list(region)
+    get_problem_list(region, searchProblemTitle, selectDifficulty)
       .then(response => response.json())
       .then(result => {
-        if (result.data != null) { 
+        if (result.data != null) {
           setProblemList(result.data);
           setShowLoading(false);
-        };
+        }
       })
       .catch(err => console.log(err))
-  }, [region]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setCurTime(new Date());
-    }, 500)
-  }, [curTime]);
+  }, [region, searchProblemTitle, selectDifficulty]);
 
   return (
     <IonPage>
@@ -122,6 +128,7 @@ export const ProblemList: React.FC = () => {
           </IonRefresherContent>
         </IonRefresher>
 
+        {/* 比赛排名 */}
         {contest === undefined ? undefined : <IonFab vertical="top" horizontal="end" slot="fixed" edge>
           <IonFabButton onClick={() => {
             window.location.href = format('/RankList/{}', region);
@@ -130,50 +137,102 @@ export const ProblemList: React.FC = () => {
           </IonFabButton>
         </IonFab>}
 
-        {contest === undefined ? undefined :
-          [contest].map((curContest, index) => {
-            let curTime = new Date();
-            let offset = curTime.getTimezoneOffset() * 60 * 1000;
-            let curTimeValue = curTime.getTime() - offset;
-            let startTimeValue = parseInt(curContest.startTime) * 1000;
-            let endTimeValue = parseInt(curContest.endTime) * 1000;
+        
+        
 
-            let curTimeString = format("{}-{}-{} {}:{}:{}", 
-              curTime.getFullYear(),
-              curTime.getMonth() + 1 < 10 ? format("0{}", curTime.getMonth() + 1) : curTime.getMonth() + 1,
-              curTime.getDate() < 10 ? format("0{}", curTime.getDate()) : curTime.getDate(),
-              curTime.getHours() < 10 ? format("0{}", curTime.getHours()) : curTime.getHours(),
-              curTime.getMinutes() < 10 ? format("0{}", curTime.getMinutes()) : curTime.getMinutes(),
-              curTime.getSeconds() < 10 ? format("0{}", curTime.getSeconds()) : curTime.getSeconds(),
-            );
-
-            return(
-              <IonCard key={index}>
-                <IonItem>
-                  <IonLabel>Cur Time:</IonLabel>
-                  <IonDatetime displayFormat="YYYY-MM-DD HH:mm:ss" value={curTimeString} readonly={true}></IonDatetime>
-                </IonItem>
-                <IonItem><IonProgressBar 
-                  value={(curTimeValue - startTimeValue) / (endTimeValue - startTimeValue)}
-                  color={contest.state === "Ended" ? "danger" : "success"}
-                  className="contest_progress"
-                ></IonProgressBar></IonItem>
-              </IonCard>
-            )
-          })
+        {/* 题库里通过题目标题搜索 */}
+        {contest !== undefined ? undefined :
+          <IonSearchbar
+            value={searchProblemTitle}
+            onIonChange={e => setSearchProblemTitle(e.detail.value!)}
+            placeholder="Problem Title"
+          />
         }
 
+        {/* 题库里通过难度，标签筛选 */}
+        {contest !== undefined ? undefined :
+          <IonFab vertical="top" horizontal="end" slot="fixed" edge>
+            <IonFabButton>
+              <IonIcon icon={chevronBackOutline} />
+            </IonFabButton>
+            <IonFabList side="start">
+              <IonFabButton onClick={() => setShowPicker(true)}>
+                <IonIcon icon={pawOutline} />
+              </IonFabButton>
+              <IonFabButton>
+                <IonIcon icon={funnelOutline} />
+              </IonFabButton>
+            </IonFabList>
+          </IonFab>
+        }
+
+        {/* 选择题目难度 */}
+        <IonPicker
+          isOpen={showPicker}
+          onDidDismiss={(e) => {
+            setShowPicker(false)
+            e.detail.role === "cancel" ? console.log('Cancel clicked') : setSelectDifficulty(e.detail.data.Difficulty.value);
+          }}
+          columns={[{
+            name: 'Difficulty',
+            options: [
+              { text: 'All Difficulty', value: '' },
+              { text: 'Naive', value: 'Naive' },
+              { text: 'Easy', value: 'Easy' },
+              { text: 'Middle', value: 'Middle' },
+              { text: 'Hard', value: 'Hard' },
+            ]
+          }]}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel'
+            },
+            {
+              text: 'Done'
+            }
+          ]}
+        ></IonPicker>
+
+        {/* 选择题目标签 */}
+        {/* {Tags.map((tag, index) => (
+          <IonItem key={index}>
+            <IonLabel>{tag}</IonLabel>
+            <IonCheckbox
+              slot="start"
+              value={tag}
+              checked={checked[index]}
+              onIonChange={(e) => {
+                let tep = checked
+                tep[index] = e.detail.checked
+                setChecked(tep)
+                let tags = Tags
+                for (let i = tags.length - 1; i >= 0; i--) {
+                  if (tep[i] === false) {
+                    tags.splice(i, 1)
+                  }
+                }
+                setSelectTags(tags)
+              }}
+            />
+          </IonItem>
+        ))
+        } */}
+        {/* 倒计时 */}
+        {contest === undefined ? undefined : <CountDown curContest={contest}/> }
+
+        {/* 题目列表 */}
         <IonCard>
-          {problemList === undefined ? undefined : 
+          {problemList === undefined ? undefined :
             problemList.problemCatalog.elements[0].map((problem, index) => {
               let solutionState: any = undefined;
               let difficultyColor: any = undefined;
               if (problem.isPassed === true) { solutionState = "success"; }
               else if (problem.isTried === true) { solutionState = "warning"; }
-              if (problem.difficulty === 'Naive') { difficultyColor = "medium"}
-              else if (problem.difficulty === 'Easy') { difficultyColor = "primary"}
-              else if (problem.difficulty === 'Middle') { difficultyColor = "tertiary"}
-              else if (problem.difficulty === 'Hard') { difficultyColor = "danger"}
+              if (problem.difficulty === 'Naive') { difficultyColor = "medium" }
+              else if (problem.difficulty === 'Easy') { difficultyColor = "primary" }
+              else if (problem.difficulty === 'Middle') { difficultyColor = "tertiary" }
+              else if (problem.difficulty === 'Hard') { difficultyColor = "danger" }
               if (problem.id != null) {
                 return (
                   <IonItem href={format('/Problem/{}/{}', region, problem.id)} color={solutionState} key={index}>
@@ -190,13 +249,13 @@ export const ProblemList: React.FC = () => {
                         </IonCol>
                       </IonRow>
                     </IonGrid>
-                    
+
                   </IonItem>
                 );
               }
               return null;
             }
-          )}
+            )}
         </IonCard>
       </IonContent>
     </IonPage>

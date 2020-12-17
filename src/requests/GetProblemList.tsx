@@ -1,10 +1,30 @@
-export const get_problem_list = (region: string) => {
+export const get_problem_list = (region: string, title: any, difficulty: any) => {
     var format = require('string-format')
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
     var graphql = JSON.stringify({
-        query: format("query {\r\nproblemCatalog(\r\nregion: \"{}\"\r\n) {\r\n    elements {\r\n      id\r\n      title\r\n      tags\r\n      difficulty\r\n      acceptRate\r\n      isPassed\r\n    isTried\r\n    }\r\n  }\r\n}\r\n", region),
+        query: format(`query {
+            problemCatalog(
+                region: "{}"
+                title: "{}"
+                difficulty: {}
+            ) {
+                elements {
+                    id
+                    title
+                    tags
+                    difficulty
+                    acceptRate
+                    isPassed
+                    isTried
+                }
+            }
+        }`,
+            region,
+            (title === undefined || title === null || title === '') ? "" : title,
+            (difficulty === undefined || difficulty === null || difficulty === '') ? null : `"${difficulty}"`
+        ),
         variables: {}
     })
 
